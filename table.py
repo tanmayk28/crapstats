@@ -18,6 +18,7 @@ class Table(object):
         self.shooters = 1
         self.rolls = 1
         self.roll_history = []
+        self.delta = (0, 0)
 
     def simulate(self):
         dice = self.player.dice
@@ -25,7 +26,7 @@ class Table(object):
             log = Log()
             log.pre_roll(self)
             self.player.strategy(self)
-            self.evaluate_roll(self, dice.roll())
+            self.delta = self.evaluate_roll(self, dice.roll())
             log.post_roll(self)
             self.player.catalogue(self, log)
         self.player.tabulate()
@@ -37,28 +38,33 @@ class Table(object):
 
         if table.point is None:
             if dice.total in NATURALS:
-                self.bet.assess_naturals(table)
+                delta = self.bet.assess_naturals(table)
                 check = u'\u2714' * 4
             elif dice.total in CRAPS:
-                self.bet.assess_craps(table)
+                delta = self.bet.assess_craps(table)
                 check = u'\u2718' * 4
             elif dice.total in BOXES:
-                win_loss = self.bet.assess_box(table, dice)
+                delta = self.bet.assess_box(table, dice)
             else:
                 raise Exception('Invalid Roll')
         else:
             if dice.total == SEVEN:
-                self.bet.assess_seven_out(table)
                 check = u'\u2718' * 4
+                delta = self.bet.assess_seven_out(table)
+            elif dice.total == YOLEVEN:
+                pass
             elif dice.total in CRAPS:
                 pass
             elif dice.total in BOXES:
                 if table.point == dice.total:
                     check = u'\u2714' * 4
-                self.bet.assess_box(table, dice)
+                delta = self.bet.assess_box(table, dice)
+            else:
+                raise Exception('Invalid Roll')
+        return delta
 
     def stop_condition(self):
-        if self.shooters == 100 or self.rolls == 1000 or self.player.bankroll <= 0:
+        if self.shooters == 1000 or self.rolls == 10000 or self.player.bankroll <= 0:
             return False
         else:
             return True

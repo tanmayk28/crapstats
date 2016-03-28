@@ -41,7 +41,8 @@ class Player(object):
         self.history[table.rolls] = log
 
     def tabulate(self):
-        headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Wager', 'BankRoll']
+        headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Wager', 'BankRoll', 'Won', 'Lost']
         print tabulate(self.history.values(), headers)
         print '\nBANKROLL:', self.history.items()[0][1].start_bank, '-->', self.history.items()[-1][1].end_bank
         print 'MAX BANKROLL:', self.max_bank
+        print 'MIN BANKROLL:', self.min_bank

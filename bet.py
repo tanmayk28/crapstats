@@ -20,6 +20,8 @@ ODDS = {
 }
 
 
+# TODO Props, Hardways, DontCome, Lays, Field
+
 class Bet(object):
     passLine = 0
     dontPassLine = 0
@@ -77,21 +79,31 @@ class Bet(object):
 
         table.player.add_money(payout)
 
+        return payout, loss
+
     def assess_naturals(self, table):
+        payout = self.passLine * 2
         table.player.add_money(self.passLine * 2)
         self.passLine = 0
         table.player.naturals_won += 1
 
+        loss = self.dontPassLine
         self.dontPassLine = 0
         table.player.naturals_lost += 1
 
+        return payout, loss
+
     def assess_craps(self, table):
+        loss = self.passLine
         self.passLine = 0
         table.player.craps_lost += 1
 
+        payout = self.dontPassLine * 2
         table.player.add_money(self.dontPassLine * 2)
         self.dontPassLine = 0
         table.player.craps_won += 1
+
+        return payout, loss
 
     def assess_box(self, table, dice):
         if table.point is None:
@@ -102,11 +114,11 @@ class Bet(object):
 
         payout = self.payout_come_bet(dice.total)
         payout += self.payout_place_bet(dice.total)
-        # TODO Props and Hardways
+        loss = 0
 
         table.player.add_money(payout)
 
-        return payout, 0
+        return payout, loss
 
     def payout_come_bet(self, number):
         bet = self.comeOdds[number][0]
