@@ -151,6 +151,15 @@ class Bet(object):
             self.place[number] = 0
         return money_lost
 
+    def get_wager(self):
+        wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome
+        wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values())
+        for bet in self.comeOdds.values():
+            wager += sum(bet)
+        for bet in self.dontComeOdds.values():
+            wager += sum(bet)
+        return wager
+
     @staticmethod
     def odds_calculation(amount, odds):
         x = odds[0]

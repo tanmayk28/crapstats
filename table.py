@@ -1,5 +1,5 @@
 from bet import Bet
-from dice import Dice
+from log import Log
 
 CRAPS = (2, 3, 12)
 BOXES = (4, 5, 6, 8, 9, 10)
@@ -14,19 +14,20 @@ class Table(object):
         self.point = None
         self.minimum = minimum
         self.player = player
-        self.shooters = 0
-        self.rolls = 0
-        self.history = []
+        self.shooters = 1
+        self.rolls = 1
+        self.roll_history = []
 
     def simulate(self):
         dice = self.player.dice
-        print '\nSTART BANK --> ', self.player.bankroll, "\n"
         while self.stop_condition():
+            log = Log()
+            log.pre_roll(self)
             self.player.strategy(self)
-            print self.shooters, '\t', self.rolls, '\tBANK --> ', self.player.bankroll,
             self.evaluate_roll(self, dice.roll())
-        print '\n\tEND BANK --> ', self.player.bankroll, '\tMAX BANK --> ', self.player.max_bank, '\tMIN BANK --> ', self.player.min_bank
-        print '\tShooters -->', self.shooters, '\tRolls --> ', self.rolls
+            log.post_roll(self)
+            self.player.catalogue(self, log)
+        self.player.tabulate()
 
     def evaluate_roll(self, table, dice):
         table.rolls += 1
@@ -50,12 +51,9 @@ class Table(object):
             elif dice.total in CRAPS:
                 pass
             elif dice.total in BOXES:
-                self.bet.assess_box(table, dice)
                 if table.point == dice.total:
                     check = u'\u2714' * 4
-
-        print '\tDICE --->', dice.total, '\tPoint --> ', table.point if table.point is not None else '-', '\t', \
-            check if check is not None else ' '
+                self.bet.assess_box(table, dice)
 
     def stop_condition(self):
         if self.shooters == 1000 or self.rolls == 10000 or self.player.bankroll <= 0:

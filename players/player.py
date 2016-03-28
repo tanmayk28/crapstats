@@ -1,4 +1,5 @@
 from dice import Dice
+from tabulate import tabulate
 
 
 class Player(object):
@@ -13,7 +14,7 @@ class Player(object):
         self.craps_won = 0
         self.craps_lost = 0
         self.dice = Dice()
-        self.roll_history = []
+        self.history = {}
 
     def add_money(self, amount):
         self.bankroll += amount
@@ -35,3 +36,10 @@ class Player(object):
     def shoot(self):
         self.dice.roll()
         return self.dice
+
+    def catalogue(self, table, log):
+        self.history[table.rolls] = log
+
+    def tabulate(self):
+        headers = ['Roll', 'Shooter', 'Roll', 'Wager', 'Dice', 'Roll', 'Wager']
+        print tabulate(self.history.values(), headers)
