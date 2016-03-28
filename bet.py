@@ -70,10 +70,9 @@ class Bet(object):
         self.passLine = 0
         table.point = None
 
-        self.clear_come_bets()
-        self.clear_place_bets()
-        payout = 0
-        payout += self.payout_dont_come_bets()
+        loss = self.clear_come_bets()
+        loss += self.clear_place_bets()
+        payout = self.payout_dont_come_bets()
         payout += self.payout_lay_bet()
 
         table.player.add_money(payout)
@@ -95,19 +94,19 @@ class Bet(object):
         table.player.craps_won += 1
 
     def assess_box(self, table, dice):
-        payout = 0
         if table.point is None:
             table.point = dice.total
         else:
             if dice.total == table.point:
                 table.point = None
 
-        payout += self.payout_come_bet(dice.total)
+        payout = self.payout_come_bet(dice.total)
         payout += self.payout_place_bet(dice.total)
-
         # TODO Props and Hardways
 
         table.player.add_money(payout)
+
+        return payout, 0
 
     def payout_come_bet(self, number):
         bet = self.comeOdds[number][0]
@@ -137,19 +136,19 @@ class Bet(object):
         return payout
 
     def clear_come_bets(self):
-        money_lost = 0
+        loss = 0
         for come_bet in self.comeOdds.values():
-            money_lost += come_bet[0] + come_bet[1]
+            loss += come_bet[0] + come_bet[1]
             come_bet[0] = 0
             come_bet[1] = 0
-        return money_lost
+        return loss
 
     def clear_place_bets(self):
-        money_lost = 0
+        loss = 0
         for number in self.place.keys():
-            money_lost += self.place[number]
+            loss += self.place[number]
             self.place[number] = 0
-        return money_lost
+        return loss
 
     def get_wager(self):
         wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome

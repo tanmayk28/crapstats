@@ -1,3 +1,4 @@
+import operator
 from bet import Bet
 from log import Log
 
@@ -31,6 +32,7 @@ class Table(object):
 
     def evaluate_roll(self, table, dice):
         table.rolls += 1
+        delta = (0, 0)
         check = None
 
         if table.point is None:
@@ -41,7 +43,7 @@ class Table(object):
                 self.bet.assess_craps(table)
                 check = u'\u2718' * 4
             elif dice.total in BOXES:
-                self.bet.assess_box(table, dice)
+                win_loss = self.bet.assess_box(table, dice)
             else:
                 raise Exception('Invalid Roll')
         else:
@@ -56,7 +58,7 @@ class Table(object):
                 self.bet.assess_box(table, dice)
 
     def stop_condition(self):
-        if self.shooters == 1000 or self.rolls == 10000 or self.player.bankroll <= 0:
+        if self.shooters == 100 or self.rolls == 1000 or self.player.bankroll <= 0:
             return False
         else:
             return True

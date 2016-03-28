@@ -1,7 +1,12 @@
 class Log(object):
     def __init__(self):
-        # player
+        # roll
         self.dice = None
+        self.result = None
+        self.won = None
+        self.lost = None
+
+        # player
         self.start_bank = None
         self.end_bank = None
         self.start_wager = 0
@@ -33,10 +38,5 @@ class Log(object):
         return log.__str__()
 
     def __iter__(self):
-        return iter([self.rollNumber,
-                     self.shooter,
-                     self.start_bank,
-                     self.start_wager,
-                     self.dice,
-                     self.end_wager,
-                     self.end_bank])
+        return iter([self.rollNumber, self.shooter, self.start_bank, self.start_wager,
+                     self.dice, self.end_wager, self.end_bank])
