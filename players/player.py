@@ -1,5 +1,6 @@
 from dice import Dice
 from tabulate import tabulate
+from plotter import *
 
 
 class Player(object):
@@ -15,6 +16,7 @@ class Player(object):
         self.craps_lost = 0
         self.dice = Dice()
         self.history = {}
+        self.bankroll_history = []
 
     def add_money(self, amount):
         self.bankroll += amount
@@ -37,12 +39,17 @@ class Player(object):
         self.dice.roll()
         return self.dice
 
+    def log_bankroll(self):
+        self.bankroll_history.append(self.bankroll)
+
     def catalogue(self, table, log):
         self.history[table.rolls] = log
 
     def tabulate(self):
-        headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Wager', 'BankRoll', 'Won', 'Lost']
+        headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Point', 'Wager', 'BankRoll', 'Won', 'Lost']
         print tabulate(self.history.values(), headers)
         print '\nBANKROLL:', self.history.items()[0][1].start_bank, '-->', self.history.items()[-1][1].end_bank
         print 'MAX BANKROLL:', self.max_bank
         print 'MIN BANKROLL:', self.min_bank
+
+        line_plot(self.bankroll_history)

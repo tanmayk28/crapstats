@@ -1,4 +1,3 @@
-import operator
 from bet import Bet
 from log import Log
 
@@ -24,8 +23,8 @@ class Table(object):
         dice = self.player.dice
         while self.stop_condition():
             log = Log()
-            log.pre_roll(self)
             self.player.strategy(self)
+            log.pre_roll(self)
             self.delta = self.evaluate_roll(self, dice.roll())
             log.post_roll(self)
             self.player.catalogue(self, log)
@@ -61,10 +60,11 @@ class Table(object):
                 delta = self.bet.assess_box(table, dice)
             else:
                 raise Exception('Invalid Roll')
+        self.player.log_bankroll()
         return delta
 
     def stop_condition(self):
-        if self.shooters == 1000 or self.rolls == 10000 or self.player.bankroll <= 0:
+        if self.shooters == 100 or self.rolls == 1000 or self.player.bankroll <= 0:
             return False
         else:
             return True

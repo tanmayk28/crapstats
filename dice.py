@@ -13,6 +13,7 @@ class Dice(object):
         self.die1 = None
         self.die2 = None
         self.hardway = None
+        self.history = []
 
     def roll(self):
         self.die1 = randint(1, 6)
@@ -29,4 +30,4 @@ class Dice(object):
         return self
 
     def add_to_history(self):
-        pass
+        self.history.append(self.total)

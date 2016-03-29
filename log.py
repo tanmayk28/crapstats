@@ -13,6 +13,7 @@ class Log(object):
         self.end_wager = 0
 
         # table
+        self.point = None
         self.rollNumber = None
         self.shooter = None
 
@@ -23,6 +24,7 @@ class Log(object):
         self.start_wager = table.bet.get_wager()
 
     def post_roll(self, table):
+        self.point = table.point
         self.dice = table.player.dice.total
         self.end_bank = table.player.bankroll
         self.end_wager = table.bet.get_wager()
@@ -41,4 +43,4 @@ class Log(object):
 
     def __iter__(self):
         return iter([self.rollNumber, self.shooter, self.start_bank, self.start_wager,
-                     self.dice, self.end_wager, self.end_bank, self.win, self.loss])
+                     self.dice, self.point, self.end_wager, self.end_bank, self.win, self.loss])

@@ -13,11 +13,11 @@ class BasicPlayer(Player):
             table.bet.make_pass_bet(table, table.minimum)
         elif table.bet.comeOdds[table.point][1] == 0:
             table.bet.establish_pass_odds(table.point, table, table.minimum * 2)
-            table.bet.make_across_place_bet(table, table.minimum)
-            # table.bet.make_place_bet(6, table, table.minimum)
-            # table.bet.make_place_bet(8, table, table.minimum)
+            # table.bet.make_across_place_bet(table, table.minimum)
+            table.bet.make_place_bet(6, table, table.minimum)
+            table.bet.make_place_bet(8, table, table.minimum)
         else:
-            table.bet.make_across_place_bet(table, table.minimum)
-            # table.bet.make_place_bet(6, table, table.minimum)
-            # table.bet.make_place_bet(8, table, table.minimum)
+            # table.bet.make_across_place_bet(table, table.minimum)
+            table.bet.make_place_bet(6, table, table.minimum)
+            table.bet.make_place_bet(8, table, table.minimum)
 
