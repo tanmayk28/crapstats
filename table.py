@@ -1,5 +1,7 @@
 from bet import Bet
 from log import Log
+from dice import Dice
+from plotter import *
 
 CRAPS = (2, 3, 12)
 BOXES = (4, 5, 6, 8, 9, 10)
@@ -11,60 +13,83 @@ YOLEVEN = 11
 class Table(object):
     def __init__(self, minimum, player):
         self.bet = Bet()
+        self.player = player
+        self.dice = Dice()
+
         self.point = None
         self.minimum = minimum
-        self.player = player
+
+        # metadata
         self.shooters = 1
         self.rolls = 1
+        self.longest_roll = 0
+        self.points_won = 0
+        self.points_lost = 0
+        self.naturals_won = 0
+        self.naturals_lost = 0
+        self.come_out_naturals = 0
+        self.craps_won = 0
+        self.craps_lost = 0
+        self.come_out_craps = 0
         self.roll_history = []
         self.delta = (0, 0)
 
     def simulate(self):
-        dice = self.player.dice
         while self.stop_condition():
             log = Log()
             self.player.strategy(self)
             log.pre_roll(self)
-            self.delta = self.evaluate_roll(self, dice.roll())
+            self.shoot()
+            self.delta = self.evaluate_roll()
             log.post_roll(self)
             self.player.catalogue(self, log)
         self.player.tabulate()
 
-    def evaluate_roll(self, table, dice):
-        table.rolls += 1
+    def evaluate_roll(self):
         delta = (0, 0)
-        check = None
 
-        if table.point is None:
-            if dice.total in NATURALS:
-                delta = self.bet.assess_naturals(table)
-                check = u'\u2714' * 4
-            elif dice.total in CRAPS:
-                delta = self.bet.assess_craps(table)
-                check = u'\u2718' * 4
-            elif dice.total in BOXES:
-                delta = self.bet.assess_box(table, dice)
+        if self.point is None:
+            if self.dice.total in NATURALS:
+                delta = self.bet.assess_naturals(self)
+                self.come_out_naturals += 1
+            elif self.dice.total in CRAPS:
+                delta = self.bet.assess_craps(self)
+                self.come_out_craps += 1
+            elif self.dice.total in BOXES:
+                delta = self.bet.assess_box(self)
             else:
                 raise Exception('Invalid Roll')
         else:
-            if dice.total == SEVEN:
-                check = u'\u2718' * 4
-                delta = self.bet.assess_seven_out(table)
-            elif dice.total == YOLEVEN:
-                pass
-            elif dice.total in CRAPS:
-                pass
-            elif dice.total in BOXES:
-                if table.point == dice.total:
-                    check = u'\u2714' * 4
-                delta = self.bet.assess_box(table, dice)
+            if self.dice.total == SEVEN:
+                delta = self.bet.assess_seven_out(self)
+            elif self.dice.total == YOLEVEN:
+                delta = self.bet.assess_yoleven(self)
+            elif self.dice.total in CRAPS:
+                delta = self.bet.assess_craps(self)
+            elif self.dice.total in BOXES:
+                delta = self.bet.assess_box(self)
             else:
                 raise Exception('Invalid Roll')
         self.player.log_bankroll()
         return delta
 
+    def log(self):
+        line_plot(self.bankroll_history)
+        # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
+        # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
+
+    def shoot(self):
+        self.dice.roll()
+        self.rolls += 1
+        return self.dice
+
     def stop_condition(self):
-        if self.shooters == 100 or self.rolls == 1000 or self.player.bankroll <= 0:
+        if self.rolls == 100 or self.player.bankroll <= 0:
             return False
         else:
             return True
+
+    def update_seven_out_stats(self):
+        self.shooters += 1
+        self.longest_roll = max(self.longest_roll, self.dice.current_roll)
+        self.dice.current_roll = 0

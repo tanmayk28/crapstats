@@ -7,6 +7,6 @@ bankroll = 500
 minimum = 5
 
 if __name__ == '__main__':
-    player = BasicPlayer(bankroll)
+    player = ComePlayer(bankroll)
     table = Table(minimum, player)
     table.simulate()

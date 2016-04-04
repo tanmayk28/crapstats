@@ -11,7 +11,7 @@ def test_place_bets():
     player = Player(BANKROLL)
     table = Table(MINIMUM, player)
     bet = table.bet
-    dice = player.dice
+    dice = table.dice
 
     bet.make_place_bet(6, table, MINIMUM)
     assert bet.get_wager() == 12
@@ -19,7 +19,7 @@ def test_place_bets():
     assert player.bankroll == 488
 
     dice.total = 6
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
     assert bet.get_wager() == 12
     assert bet.place[6] == 12
     assert player.bankroll == 502
@@ -27,18 +27,18 @@ def test_place_bets():
 
     bet.make_place_bet(5, table, MINIMUM)
     dice.total = 5
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
 
     bet.make_place_bet(4, table, MINIMUM)
     dice.total = 4
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
 
     dice.total = 5
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
     dice.total = 8
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
     dice.total = 9
-    bet.assess_box(table, dice)
+    bet.assess_box(table)
     bet.make_place_bet(10, table, MINIMUM)
 
     assert bet.get_wager() == 42

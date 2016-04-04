@@ -25,7 +25,7 @@ class Log(object):
 
     def post_roll(self, table):
         self.point = table.point
-        self.dice = table.player.dice.total
+        self.dice = table.dice.total
         self.end_bank = table.player.bankroll
         self.end_wager = table.bet.get_wager()
         self.win = table.delta[0]

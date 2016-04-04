@@ -1,20 +1,15 @@
-from dice import Dice
 from tabulate import tabulate
 from plotter import *
 
 
 class Player(object):
-    """Common base class for all players"""
+    """Common base class for all players.
+    Default: 2x odds."""
 
     def __init__(self, bankroll=500):
         self.bankroll = bankroll
         self.max_bank = bankroll
         self.min_bank = bankroll
-        self.naturals_won = 0
-        self.naturals_lost = 0
-        self.craps_won = 0
-        self.craps_lost = 0
-        self.dice = Dice()
         self.history = {}
         self.bankroll_history = []
 
@@ -35,10 +30,6 @@ class Player(object):
         if self.bankroll < self.min_bank:
             self.min_bank = self.bankroll
 
-    def shoot(self):
-        self.dice.roll()
-        return self.dice
-
     def log_bankroll(self):
         self.bankroll_history.append(self.bankroll)
 
@@ -53,3 +44,10 @@ class Player(object):
         print 'MIN BANKROLL:', self.min_bank
 
         line_plot(self.bankroll_history)
+        # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
+        # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
+
+    @staticmethod
+    def get_odds(number, amount):
+        if number in (4, 5, 6, 8, 9, 10):
+            return 2 * amount

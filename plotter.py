@@ -25,7 +25,13 @@ def bar_plot(labels, data):
     pos = arange(len(data))
     pyplot.xticks(pos + 0.4, labels)
     pyplot.bar(pos, data)
-    pyplot.show()
+    pyplot.figure(figsize=(7, 7))
+    pyplot.pie(data, labels=labels, autopct='%1.2f%%')
+    pyplot.draw()
+    pyplot.pause(1)
+    raw_input()
+    pyplot.close()
+    # pyplot.show()
 
 
 def histogram_plot(data, bins=None, nbins=5):
@@ -66,4 +72,7 @@ def bar_chart(x, y, numbins=5):
 def pie_chart(labels, data):
     pyplot.figure(figsize=(7, 7))
     pyplot.pie(data, labels=labels, autopct='%1.2f%%')
-    pyplot.show()
+    pyplot.draw()
+    pyplot.pause(1)
+    raw_input()
+    pyplot.close()
