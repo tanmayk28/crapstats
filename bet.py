@@ -74,6 +74,7 @@ class Bet(object):
             table.point = number
         else:
             if number == table.point:
+                table.points_won += 1
                 table.point = None
 
         payout = self.payout_come_bet(number)
@@ -87,6 +88,7 @@ class Bet(object):
         return payout, loss
 
     def assess_seven_out(self, table):
+        table.points_lost += 1
         self.passLine = 0
         table.point = None
 

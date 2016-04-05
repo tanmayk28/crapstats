@@ -22,6 +22,9 @@ class BasicPlayer(Player):
             table.bet.make_place_bet(6, table, table.minimum)
             table.bet.make_place_bet(8, table, table.minimum)
 
+    def get_wager(self, bet):
+        return bet.get_wager()
+
     @staticmethod
     def get_odds(number, amount):
         if number in (4, 5, 6, 8, 9, 10):

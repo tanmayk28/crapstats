@@ -16,10 +16,18 @@ class ComePlayer(Player):
             bet.make_pass_bet(table, amount)
         elif bet.comeOdds[table.point][1] == 0:
             bet.establish_pass_odds(table, self.get_odds(table.point, amount))
-            bet.make_come_bet(table, amount)
+            if bet.get_total_come_bets() < self.max_points:
+                bet.make_come_bet(table, amount)
         else:
             if bet.get_total_come_bets() < self.max_points:
                 bet.make_come_bet(table, amount)
+
+    def get_wager(self, bet):
+        wager = bet.get_wager()
+        # come = {k: sum(v) for k, v in bet.comeOdds.iteritems() if v[0]}
+        come = 'C' + str([k for k, v in bet.comeOdds.iteritems() if v[0]])
+        wager = " ".join((str(wager), str(come)))
+        return wager
 
     @staticmethod
     def get_odds(number, amount):

@@ -44,10 +44,9 @@ class Table(object):
             log.post_roll(self)
             self.player.catalogue(self, log)
         self.player.tabulate()
+        self.log()
 
     def evaluate_roll(self):
-        delta = (0, 0)
-
         if self.point is None:
             if self.dice.total in NATURALS:
                 delta = self.bet.assess_naturals(self)
@@ -74,7 +73,12 @@ class Table(object):
         return delta
 
     def log(self):
-        line_plot(self.bankroll_history)
+        print '\nBANKROLL:', self.player.bankroll_history[0], '-->', self.player.bankroll_history[-1], '\n'
+        print 'MAX BANKROLL:', self.player.max_bank, '\tMIN BANKROLL:', self.player.min_bank
+        print 'POINTS WON:', self.points_won, '\t\tSEVEN OUTS:', self.points_lost
+        print 'NATURALS:', self.come_out_naturals, '\t\tCRAPS:', self.come_out_craps
+        print 'LONGEST ROLL:', self.longest_roll, '\tAVG ROLL:', self.rolls / float(self.shooters)
+        line_plot(self.player.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 

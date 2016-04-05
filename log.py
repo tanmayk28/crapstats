@@ -21,13 +21,13 @@ class Log(object):
         self.rollNumber = table.rolls
         self.shooter = table.shooters
         self.start_bank = table.player.bankroll
-        self.start_wager = table.bet.get_wager()
+        self.start_wager = table.player.get_wager(table.bet)
 
     def post_roll(self, table):
         self.point = table.point
         self.dice = table.dice.total
         self.end_bank = table.player.bankroll
-        self.end_wager = table.bet.get_wager()
+        self.end_wager = table.player.get_wager(table.bet)
         self.win = table.delta[0]
         self.loss = table.delta[1]
 
