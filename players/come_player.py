@@ -22,7 +22,8 @@ class ComePlayer(Player):
             if bet.get_total_come_bets() < self.max_points:
                 bet.make_come_bet(table, amount)
 
-    def get_wager(self, bet):
+    @staticmethod
+    def get_wager(bet):
         wager = bet.get_wager()
         # come = {k: sum(v) for k, v in bet.comeOdds.iteritems() if v[0]}
         come = 'C' + str([k for k, v in bet.comeOdds.iteritems() if v[0]])

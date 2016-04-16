@@ -2,7 +2,7 @@ from players.player import Player
 
 
 class BasicPlayer(Player):
-    """ Basic Player - Plays pass line with 2x odds. Places 6 and 8."""
+    """ Basic Player - Plays pass line with 2x odds.\nDefault: Places (6, 8)."""
 
     def __init__(self, bankroll=500):
         super(BasicPlayer, self).__init__(bankroll)
@@ -22,8 +22,13 @@ class BasicPlayer(Player):
             table.bet.make_place_bet(6, table, table.minimum)
             table.bet.make_place_bet(8, table, table.minimum)
 
-    def get_wager(self, bet):
-        return bet.get_wager()
+    @staticmethod
+    def get_wager(bet):
+        wager = bet.get_wager()
+        come = 'C' + str([k for k, v in bet.comeOdds.iteritems() if v[0]])
+        place = 'P' + str([k for k, v in bet.place.iteritems() if v])
+        wager = " ".join((str(wager), str(come), str(place)))
+        return wager
 
     @staticmethod
     def get_odds(number, amount):

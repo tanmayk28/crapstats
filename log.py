@@ -42,5 +42,7 @@ class Log(object):
         return log.__str__()
 
     def __iter__(self):
+        # return iter([self.rollNumber, self.shooter, self.start_bank, self.start_wager,
+        #              self.dice, self.point, self.end_wager, self.end_bank, self.win, self.loss])
         return iter([self.rollNumber, self.shooter, self.start_bank, self.start_wager,
-                     self.dice, self.point, self.end_wager, self.end_bank, self.win, self.loss])
+                     self.dice, self.point, self.win, self.loss])
