@@ -98,7 +98,7 @@ class Table(object):
                 return False
             else:
                 # wait for the current shooter to seven-out
-                if self.rolls >= 20 and self.dice.history[self.rolls - 1] == 7:
+                if self.rolls >= 20000 and self.dice.history[self.rolls - 1] == 7:
                     return False
                 else:
                     return True

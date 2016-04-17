@@ -187,18 +187,13 @@ class Bet(object):
         return payout
 
     def clear_come_bets(self):
-        loss = 0
-        for come_bet in self.comeOdds.values():
-            loss += come_bet[0] + come_bet[1]
-            come_bet[0] = 0
-            come_bet[1] = 0
+        loss = sum([sum(v) for k, v in self.comeOdds.iteritems()])
+        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
         return loss
 
     def clear_place_bets(self):
-        loss = 0
-        for number in self.place.keys():
-            loss += self.place[number]
-            self.place[number] = 0
+        loss = sum([v for k, v in self.place.iteritems()])
+        self.place = {k: 0 for k, v in self.place.iteritems()}
         return loss
 
     def clear_come_line(self):
@@ -209,10 +204,8 @@ class Bet(object):
     def get_wager(self):
         wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome
         wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values())
-        for bet in self.comeOdds.values():
-            wager += sum(bet)
-        for bet in self.dontComeOdds.values():
-            wager += sum(bet)
+        wager += sum([sum(v) for k, v in self.comeOdds.iteritems()])
+        wager += sum([sum(v) for k, v in self.dontComeOdds.iteritems()])
         return wager
 
     def get_total_come_bets(self):
