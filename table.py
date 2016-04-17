@@ -11,10 +11,11 @@ YOLEVEN = 11
 
 
 class Table(object):
-    def __init__(self, minimum, player):
+    def __init__(self, minimum, player, input_rolls):
         self.bet = Bet()
         self.player = player
         self.dice = Dice()
+        self.input_rolls = input_rolls
 
         self.point = None
         self.minimum = minimum
@@ -35,7 +36,7 @@ class Table(object):
         self.delta = (0, 0)
 
     def simulate(self):
-        while self.stop_condition():
+        while self.continue_betting():
             log = Log()
             self.player.strategy(self)
             log.pre_roll(self)
@@ -73,8 +74,6 @@ class Table(object):
         return delta
 
     def log(self):
-        print '\nBANKROLL:', self.player.bankroll_history[0], '-->', self.player.bankroll_history[-1], '\n'
-        print 'MAX BANKROLL:', self.player.max_bank, '\tMIN BANKROLL:', self.player.min_bank
         print 'POINTS WON:', self.points_won, '\t\tSEVEN OUTS:', self.points_lost
         print 'NATURALS:', self.come_out_naturals, '\t\tCRAPS:', self.come_out_craps
         print 'LONGEST ROLL:', self.longest_roll, '\tAVG ROLL:', self.rolls / float(self.shooters)
@@ -83,15 +82,29 @@ class Table(object):
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 
     def shoot(self):
-        self.dice.roll()
+        if self.input_rolls is None:
+            self.dice.roll()
+        else:
+            self.dice.add_roll(self.input_rolls[self.rolls - 1])
+
         self.rolls += 1
         return self.dice
 
-    def stop_condition(self):
-        if self.rolls == 100 or self.player.bankroll <= 0:
-            return False
+    def continue_betting(self):
+        if self.input_rolls is None:
+            if self.player.bankroll <= 0:
+                return False
+            else:
+                # wait for the current shooter to seven-out
+                if self.rolls >= 20 and self.dice.total == 7:
+                    return False
+                else:
+                    return True
         else:
-            return True
+            if self.player.bankroll <= 0 or self.rolls > len(self.input_rolls):
+                return False
+            else:
+                return True
 
     def update_seven_out_stats(self):
         self.shooters += 1

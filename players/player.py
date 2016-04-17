@@ -37,12 +37,12 @@ class Player(object):
         self.history[table.rolls] = log
 
     def tabulate(self):
-        # headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Point', 'Wager', 'BankRoll', 'Won', 'Lost']
         headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Point', 'Won', 'Lost']
         print tabulate(self.history.values(), headers)
-        # print '\nBANKROLL:', self.history.items()[0][1].start_bank, '-->', self.history.items()[-1][1].end_bank
-        # print 'MAX BANKROLL:', self.max_bank
-        # print 'MIN BANKROLL:', self.min_bank
+        # print '\nBANKROLL:', self.bankroll_history[0], '-->', self.bankroll_history[-1], '\n'
+        # print 'MAX BANKROLL:', self.max_bank, '\tMIN BANKROLL:', self.min_bank
+        print '\nBANKROLL: {} --> {}\n'.format(self.bankroll_history[0], self.bankroll_history[-1])
+        print 'MAX BANKROLL: {}\tMIN BANKROLL: {}'.format(self.max_bank, self.min_bank)
 
         # line_plot(self.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())

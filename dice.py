@@ -21,14 +21,25 @@ class Dice(object):
         self.die2 = randint(1, 6)
         self.total = self.die1 + self.die2
 
+        self.hardway_check()
+        self.add_to_history()
+        return self
+
+    def add_roll(self, number):
+        self.die1 = randint(1, number - 1)
+        self.die2 = number - self.die1
+        self.total = number
+
+        self.hardway_check()
+        self.add_to_history()
+        return self
+
+    def hardway_check(self):
         if self.die1 == self.die2 and self.total in BOXES:
             self.hardway = True
         else:
             self.hardway = False
 
-        self.add_to_history()
-        self.current_roll += 1
-        return self
-
     def add_to_history(self):
         self.history[self.total] += 1
+        self.current_roll += 1
