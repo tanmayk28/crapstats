@@ -13,7 +13,8 @@ class Dice(object):
         self.die1 = None
         self.die2 = None
         self.hardway = None
-        self.history = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
+        self.frequency = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
+        self.history = [None]
         self.current_roll = 0
 
     def roll(self):
@@ -41,5 +42,6 @@ class Dice(object):
             self.hardway = False
 
     def add_to_history(self):
-        self.history[self.total] += 1
+        self.history.append(self.total)
+        self.frequency[self.total] += 1
         self.current_roll += 1

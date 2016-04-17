@@ -17,17 +17,17 @@ class Log(object):
         self.rollNumber = None
         self.shooter = None
 
-    def pre_roll(self, table):
+    def pre_roll(self, table, player):
         self.rollNumber = table.rolls
         self.shooter = table.shooters
-        self.start_bank = table.player.bankroll
-        self.start_wager = table.player.get_wager(table.bet)
+        self.start_bank = player.bankroll
+        self.start_wager = player.get_wager(player.bet)
 
-    def post_roll(self, table):
-        self.point = table.point
+    def post_roll(self, table, player):
+        self.point = player.point
         self.dice = table.dice.total
-        self.end_bank = table.player.bankroll
-        self.end_wager = table.player.get_wager(table.bet)
+        self.end_bank = player.bankroll
+        self.end_wager = player.get_wager(player.bet)
         self.win = table.delta[0]
         self.loss = table.delta[1]
 

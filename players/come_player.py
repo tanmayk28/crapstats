@@ -6,21 +6,21 @@ class ComePlayer(Player):
 
     def __init__(self, bankroll=500, points=3):
         super(ComePlayer, self).__init__(bankroll)
-        print ComePlayer.__doc__
+        # print ComePlayer.__doc__
         self.max_points = points
 
     def strategy(self, table):
-        bet = table.bet
+        bet = self.bet
         amount = table.minimum
-        if table.point is None:
-            bet.make_pass_bet(table, amount)
-        elif bet.comeOdds[table.point][1] == 0:
-            bet.establish_pass_odds(table, self.get_odds(table.point, amount))
+        if self.point is None:
+            bet.make_pass_bet(self, amount)
+        elif bet.comeOdds[self.point][1] == 0:
+            bet.establish_pass_odds(self, self.get_odds(self.point, amount))
             if bet.get_total_come_bets() < self.max_points:
-                bet.make_come_bet(table, amount)
+                bet.make_come_bet(self, amount)
         else:
             if bet.get_total_come_bets() < self.max_points:
-                bet.make_come_bet(table, amount)
+                bet.make_come_bet(self, amount)
 
     @staticmethod
     def get_wager(bet):

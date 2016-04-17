@@ -1,4 +1,3 @@
-from bet import Bet
 from log import Log
 from dice import Dice
 from plotter import *
@@ -11,13 +10,11 @@ YOLEVEN = 11
 
 
 class Table(object):
-    def __init__(self, minimum, player, input_rolls):
-        self.bet = Bet()
-        self.player = player
+    def __init__(self, minimum, players, input_rolls):
+        self.players = players
         self.dice = Dice()
         self.input_rolls = input_rolls
 
-        self.point = None
         self.minimum = minimum
 
         # metadata
@@ -36,48 +33,54 @@ class Table(object):
         self.delta = (0, 0)
 
     def simulate(self):
-        while self.continue_betting():
-            log = Log()
-            self.player.strategy(self)
-            log.pre_roll(self)
+        while self.continue_playing():
             self.shoot()
-            self.delta = self.evaluate_roll()
-            log.post_roll(self)
-            self.player.catalogue(self, log)
-        self.player.tabulate()
-        self.log()
+            for player in self.players:
+                if self.continue_betting(player):
+                    log = Log()
+                    player.strategy(self)
+                    log.pre_roll(self, player)
+                    self.delta = self.evaluate_roll(player)
+                    log.post_roll(self, player)
+                    player.catalogue(self, log)
+            self.rolls += 1
 
-    def evaluate_roll(self):
-        if self.point is None:
+        for player in self.players:
+            print player.__doc__
+            player.tabulate()
+            self.log(player)
+
+    def evaluate_roll(self, player):
+        if player.point is None:
             if self.dice.total in NATURALS:
-                delta = self.bet.assess_naturals(self)
+                delta = player.bet.assess_naturals(self, player)
                 self.come_out_naturals += 1
             elif self.dice.total in CRAPS:
-                delta = self.bet.assess_craps(self)
+                delta = player.bet.assess_craps(self, player)
                 self.come_out_craps += 1
             elif self.dice.total in BOXES:
-                delta = self.bet.assess_box(self)
+                delta = player.bet.assess_box(self, player)
             else:
                 raise Exception('Invalid Roll')
         else:
             if self.dice.total == SEVEN:
-                delta = self.bet.assess_seven_out(self)
+                delta = player.bet.assess_seven_out(self, player)
             elif self.dice.total == YOLEVEN:
-                delta = self.bet.assess_yoleven(self)
+                delta = player.bet.assess_yoleven(player)
             elif self.dice.total in CRAPS:
-                delta = self.bet.assess_craps(self)
+                delta = player.bet.assess_craps(self, player)
             elif self.dice.total in BOXES:
-                delta = self.bet.assess_box(self)
+                delta = player.bet.assess_box(self, player)
             else:
                 raise Exception('Invalid Roll')
-        self.player.log_bankroll()
+        player.log_bankroll()
         return delta
 
-    def log(self):
+    def log(self, player):
         print 'POINTS WON:', self.points_won, '\t\tSEVEN OUTS:', self.points_lost
         print 'NATURALS:', self.come_out_naturals, '\t\tCRAPS:', self.come_out_craps
         print 'LONGEST ROLL:', self.longest_roll, '\tAVG ROLL:', self.rolls / float(self.shooters)
-        line_plot(self.player.bankroll_history)
+        line_plot(player.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 
@@ -87,24 +90,29 @@ class Table(object):
         else:
             self.dice.add_roll(self.input_rolls[self.rolls - 1])
 
-        self.rolls += 1
         return self.dice
 
-    def continue_betting(self):
+    def continue_betting(self, player):
         if self.input_rolls is None:
-            if self.player.bankroll <= 0:
+            if player.bankroll <= 0:
                 return False
             else:
                 # wait for the current shooter to seven-out
-                if self.rolls >= 20 and self.dice.total == 7:
+                if self.rolls >= 20 and self.dice.history[self.rolls - 1] == 7:
                     return False
                 else:
                     return True
         else:
-            if self.player.bankroll <= 0 or self.rolls > len(self.input_rolls):
+            if player.bankroll <= 0 or self.rolls > len(self.input_rolls):
                 return False
             else:
                 return True
+
+    def continue_playing(self):
+        play = False
+        for player in self.players:
+            play = play or self.continue_betting(player)
+        return play
 
     def update_seven_out_stats(self):
         self.shooters += 1

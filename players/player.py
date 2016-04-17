@@ -1,3 +1,4 @@
+from bet import Bet
 from tabulate import tabulate
 from plotter import *
 
@@ -7,6 +8,8 @@ class Player(object):
     Default: 2x odds."""
 
     def __init__(self, bankroll=500):
+        self.bet = Bet()
+        self.point = None
         self.bankroll = bankroll
         self.max_bank = bankroll
         self.min_bank = bankroll

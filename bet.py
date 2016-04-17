@@ -23,74 +23,72 @@ ODDS = {
 # TODO Props, Hardways, DontCome, Lays, Field
 
 class Bet(object):
-    passLine = 0
-    dontPassLine = 0
-    field = 0
-    come = 0
-    dontCome = 0
-    place = {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}
-    lay = {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}
-    comeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
-    dontComeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
-    hardways = {4: 0, 6: 0, 8: 0, 10: 0}
-
     def __init__(self):
-        pass
+        self.passLine = 0
+        self.dontPassLine = 0
+        self.field = 0
+        self.come = 0
+        self.dontCome = 0
+        self.place = {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}
+        self.lay = {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}
+        self.comeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
+        self.dontComeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
+        self.hardways = {4: 0, 6: 0, 8: 0, 10: 0}
 
-    def make_pass_bet(self, table, amount):
-        self.passLine += table.player.use_money(amount)
+    def make_pass_bet(self, player, amount):
+        self.passLine += player.use_money(amount)
 
-    def make_come_bet(self, table, amount):
-        self.come += table.player.use_money(amount)
+    def make_come_bet(self, player, amount):
+        self.come += player.use_money(amount)
 
-    def establish_pass_odds(self, table, amount):
-        self.comeOdds[table.point][0] = self.passLine
+    def establish_pass_odds(self, player, amount):
+        self.comeOdds[player.point][0] = self.passLine
         self.passLine = 0
 
-        self.comeOdds[table.point][1] = table.player.use_money(amount)
+        self.comeOdds[player.point][1] = player.use_money(amount)
 
-    def establish_come_odds(self, number, table):
-        amount = table.player.get_odds(number, self.come)
+    def establish_come_odds(self, number, player):
+        amount = player.get_odds(number, self.come)
         self.comeOdds[number][0] = self.come
         self.come = 0
 
-        self.comeOdds[number][1] = table.player.use_money(amount)
+        self.comeOdds[number][1] = player.use_money(amount)
 
-    def make_place_bet(self, number, table, amount):
-        if table.point == number:
+    def make_place_bet(self, player, number, amount):
+        if player.point == number:
             return
         amount = self.find_next_multiple(number, amount)
         if self.place[number] != 0:
             amount -= self.place[number]
-        self.place[number] += table.player.use_money(amount)
+        self.place[number] += player.use_money(amount)
 
-    def make_across_place_bet(self, table, amount):
+    def make_across_place_bet(self, player, amount):
         for number in BOXES:
-            self.make_place_bet(number, table, amount)
+            self.make_place_bet(player, number, amount)
 
-    def assess_box(self, table):
+    def assess_box(self, table, player):
         number = table.dice.total
-        if table.point is None:
-            table.point = number
+        if player.point is None:
+            player.point = number
         else:
-            if number == table.point:
+            if number == player.point:
                 table.points_won += 1
-                table.point = None
+                player.point = None
 
         payout = self.payout_come_bet(number)
         payout += self.payout_place_bet(number)
         loss = 0
 
-        table.player.add_money(payout)
+        player.add_money(payout)
 
-        self.establish_come_odds(number, table)
+        self.establish_come_odds(number, player)
 
         return payout, loss
 
-    def assess_seven_out(self, table):
+    def assess_seven_out(self, table, player):
         table.points_lost += 1
         self.passLine = 0
-        table.point = None
+        player.point = None
 
         loss = self.clear_come_bets()
         loss += self.clear_place_bets()
@@ -98,23 +96,22 @@ class Bet(object):
         payout += self.payout_lay_bet()
         payout += self.payout_come_line()
 
-        table.player.add_money(payout)
+        player.add_money(payout)
         table.update_seven_out_stats()
         return payout, loss
 
-    def assess_yoleven(self, table):
+    def assess_yoleven(self, player):
         payout = self.payout_come_line()
         loss = 0
 
-        table.player.add_money(payout)
+        player.add_money(payout)
 
         return payout, loss
 
-    def assess_naturals(self, table):
+    def assess_naturals(self, table, player):
         payout = loss = 0
         if self.passLine > 0:
             payout += self.passLine * 2
-            table.player.add_money(self.passLine * 2)
             self.passLine = 0
             table.naturals_won += 1
 
@@ -123,9 +120,24 @@ class Bet(object):
             self.dontPassLine = 0
             table.naturals_lost += 1
 
+        if table.dice.total == SEVEN:
+            p, l = self.assess_come_out_seven()
+            payout += p
+            loss += l
+
+        player.add_money(payout)
         return payout, loss
 
-    def assess_craps(self, table):
+    def assess_come_out_seven(self):
+        payout = loss = 0
+
+        payout += sum([v[0] for k, v in self.comeOdds.iteritems()]) * 2
+        loss += sum([v[1] for k, v in self.comeOdds.iteritems()])
+        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
+
+        return payout, loss
+
+    def assess_craps(self, table, player):
         payout = loss = 0
         if self.passLine > 0:
             loss += self.passLine
@@ -134,7 +146,7 @@ class Bet(object):
 
         if self.dontPassLine > 0:
             payout += self.dontPassLine * 2
-            table.player.add_money(self.dontPassLine * 2)
+            player.add_money(self.dontPassLine * 2)
             self.dontPassLine = 0
             table.craps_won += 1
 
