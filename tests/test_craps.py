@@ -3,6 +3,7 @@ from table import Table
 
 BANKROLL = 500
 MINIMUM = 10
+MAX_ROLLS = 200
 
 """Use : python -m pytest tests/"""
 
@@ -10,7 +11,7 @@ MINIMUM = 10
 def test_place_bets():
     players = [Player(BANKROLL)]
     player = players[0]
-    table = Table(MINIMUM, players, None)
+    table = Table(MINIMUM, players, MAX_ROLLS, None)
     bet = player.bet
     dice = table.dice
 
@@ -20,7 +21,7 @@ def test_place_bets():
     assert player.bankroll == 488
 
     dice.total = 6
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
     assert bet.get_wager() == 12
     assert bet.place[6] == 12
     assert player.bankroll == 502
@@ -28,18 +29,18 @@ def test_place_bets():
 
     bet.make_place_bet(player, 5, MINIMUM)
     dice.total = 5
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
 
     bet.make_place_bet(player, 4, MINIMUM)
     dice.total = 4
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
 
     dice.total = 5
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
     dice.total = 8
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
     dice.total = 9
-    bet.assess_box(table, player)
+    bet.assess_box(table.dice, player)
     bet.make_place_bet(player, 10, MINIMUM)
 
     assert bet.get_wager() == 42
@@ -54,7 +55,7 @@ def test_place_bets():
     assert bet.place == {4: 10, 5: 10, 6: 12, 8: 12, 9: 10, 10: 10}
     assert player.bankroll == 496
 
-    bet.assess_seven_out(table, player)
+    bet.assess_seven_out(player)
 
     assert bet.get_wager() == 0
     assert bet.place == {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}
@@ -64,7 +65,7 @@ def test_place_bets():
 def test_across_place_bets():
     players = [Player(BANKROLL)]
     player = players[0]
-    table = Table(MINIMUM, players, None)
+    table = Table(MINIMUM, players, MAX_ROLLS, None)
     bet = player.bet
 
     bet.make_across_place_bet(player, MINIMUM)
@@ -73,7 +74,7 @@ def test_across_place_bets():
     assert bet.place == {4: 10, 5: 10, 6: 12, 8: 12, 9: 10, 10: 10}
     assert player.bankroll == 436
 
-    bet.assess_seven_out(table, player)
+    bet.assess_seven_out(player)
 
     assert bet.get_wager() == 0
     assert bet.place == {4: 0, 5: 0, 6: 0, 8: 0, 9: 0, 10: 0}

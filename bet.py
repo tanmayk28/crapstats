@@ -66,13 +66,14 @@ class Bet(object):
         for number in BOXES:
             self.make_place_bet(player, number, amount)
 
-    def assess_box(self, table, player):
-        number = table.dice.total
+    def assess_box(self, dice, player):
+        status = None
+        number = dice.total
         if player.point is None:
             player.point = number
         else:
             if number == player.point:
-                table.points_won += 1
+                status = 'POINT'
                 player.point = None
 
         payout = self.payout_come_bet(number)
@@ -83,10 +84,10 @@ class Bet(object):
 
         self.establish_come_odds(number, player)
 
-        return payout, loss
+        return payout, loss, status
 
-    def assess_seven_out(self, table, player):
-        table.points_lost += 1
+    def assess_seven_out(self, player):
+        status = 'SEVEN_OUT'
         self.passLine = 0
         player.point = None
 
@@ -97,8 +98,7 @@ class Bet(object):
         payout += self.payout_come_line()
 
         player.add_money(payout)
-        table.update_seven_out_stats()
-        return payout, loss
+        return payout, loss, status
 
     def assess_yoleven(self, player):
         payout = self.payout_come_line()
@@ -106,27 +106,26 @@ class Bet(object):
 
         player.add_money(payout)
 
-        return payout, loss
+        return payout, loss, None
 
-    def assess_naturals(self, table, player):
+    def assess_naturals(self, dice, player):
         payout = loss = 0
+        status = 'NATURALS'
         if self.passLine > 0:
             payout += self.passLine * 2
             self.passLine = 0
-            table.naturals_won += 1
 
         if self.dontPassLine > 0:
             loss += self.dontPassLine
             self.dontPassLine = 0
-            table.naturals_lost += 1
 
-        if table.dice.total == SEVEN:
+        if dice.total == SEVEN:
             p, l = self.assess_come_out_seven()
             payout += p
             loss += l
 
         player.add_money(payout)
-        return payout, loss
+        return payout, loss, status
 
     def assess_come_out_seven(self):
         payout = loss = 0
@@ -137,22 +136,23 @@ class Bet(object):
 
         return payout, loss
 
-    def assess_craps(self, table, player):
+    def assess_craps(self, player):
         payout = loss = 0
+        status = None
         if self.passLine > 0:
             loss += self.passLine
             self.passLine = 0
-            table.craps_lost += 1
+            status = 'CRAPS'
 
         if self.dontPassLine > 0:
             payout += self.dontPassLine * 2
             player.add_money(self.dontPassLine * 2)
             self.dontPassLine = 0
-            table.craps_won += 1
+            status = 'CRAPS'
 
         loss += self.clear_come_line()
 
-        return payout, loss
+        return payout, loss, status
 
     def payout_come_bet(self, number):
         bet = self.comeOdds[number][0]
@@ -209,11 +209,7 @@ class Bet(object):
         return wager
 
     def get_total_come_bets(self):
-        bets = 0
-        for bet in self.comeOdds.values():
-            if bet[0] > 0:
-                bets += 1
-        return bets
+        return len([k for k, v in self.comeOdds.iteritems() if sum(v)])
 
     @staticmethod
     def odds_calculation(amount, odds):

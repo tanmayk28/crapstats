@@ -28,8 +28,8 @@ class Log(object):
         self.dice = table.dice.total
         self.end_bank = player.bankroll
         self.end_wager = player.get_wager(player.bet)
-        self.win = table.delta[0]
-        self.loss = table.delta[1]
+        self.win = table.roll_status[0]
+        self.loss = table.roll_status[1]
 
     def __str__(self):
         log = [self.rollNumber,

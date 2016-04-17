@@ -5,6 +5,7 @@ __author__ = 'T'
 
 bankroll = 1000
 minimum = 10
+max_rolls = 2000
 
 if __name__ == '__main__':
     rolls = [8, 8, 8, 7, 5, 5, 5, 11, 6, 10, 10, 6, 10, 7, 4, 3, 6, 8, 4, 3, 6, 8, 4, 5, 5, 5, 10, 8, 6,
@@ -15,5 +16,5 @@ if __name__ == '__main__':
     players.append(ComePlayer(bankroll))
     players.append(BasicPlayer(bankroll))
 
-    table = Table(minimum, players, None)
+    table = Table(minimum, players, max_rolls, None)
     table.simulate()
