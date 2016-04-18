@@ -3,8 +3,8 @@ from players import *
 
 __author__ = 'T'
 
-bankroll = 1000
-minimum = 10
+bankroll = 10000
+minimum = 25
 max_rolls = 2000
 
 if __name__ == '__main__':
@@ -12,9 +12,12 @@ if __name__ == '__main__':
              4, 3, 12, 5, 7, 10, 7, 4, 9, 9, 7, 4, 7, 6, 6, 12, 7, 5, 7, 6, 11, 4, 6, 5, 7, 10, 6, 4, 8,
              10, 8, 11, 6, 5, 4, 4, 6, 7, 8, 7, 6, 12, 4, 6, 6, 10, 4, 7, 7, 5, 10, 12, 5, 5, 3, 7]
 
-    players = list()
-    players.append(ComePlayer(bankroll))
-    players.append(BasicPlayer(bankroll))
+    rolls = [4, 9, 5, 7, 6, 4, 7, 3, 8, 11, 8, 3, 7, 8, 8, 4, 5, 7]
 
-    table = Table(minimum, players, max_rolls, None)
+    players = list()
+    # players.append(BasicPlayer(bankroll))
+    # players.append(ComePlayer(bankroll))
+    players.append(DontComePlayer(bankroll))
+
+    table = Table(minimum, players, max_rolls, rolls)
     table.simulate()

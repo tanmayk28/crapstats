@@ -53,7 +53,7 @@ class Table(object):
             if self.dice.total in NATURALS:
                 delta = player.bet.assess_naturals(self.dice, player)
             elif self.dice.total in CRAPS:
-                delta = player.bet.assess_craps(player)
+                delta = player.bet.assess_craps(self.dice, player)
             elif self.dice.total in BOXES:
                 delta = player.bet.assess_box(self.dice, player)
             else:
@@ -64,7 +64,7 @@ class Table(object):
             elif self.dice.total == YOLEVEN:
                 delta = player.bet.assess_yoleven(player)
             elif self.dice.total in CRAPS:
-                delta = player.bet.assess_craps(player)
+                delta = player.bet.assess_craps(self.dice, player)
             elif self.dice.total in BOXES:
                 delta = player.bet.assess_box(self.dice, player)
             else:

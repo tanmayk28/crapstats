@@ -4,8 +4,7 @@ from plotter import *
 
 
 class Player(object):
-    """Common base class for all players.
-    Default: 2x odds."""
+    """Common base class for all players.\nDefault: 2x odds."""
 
     def __init__(self, bankroll=500):
         self.bet = Bet()
