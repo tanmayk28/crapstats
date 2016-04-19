@@ -15,7 +15,7 @@ class ComePlayer(Player):
         if self.point is None:
             bet.make_pass_bet(self, amount)
         elif bet.comeOdds[self.point][1] == 0:
-            bet.establish_pass_odds(self, self.get_odds(self.point, amount))
+            bet.establish_pass_odds(self, self.get_come_odds(self.point, amount))
             if bet.get_total_come_bets() < self.max_points:
                 bet.make_come_bet(self, amount)
         else:
@@ -31,7 +31,7 @@ class ComePlayer(Player):
         return wager
 
     @staticmethod
-    def get_odds(number, amount):
+    def get_come_odds(number, amount):
         if number in (6, 8):
             return 5 * amount
         elif number in (5, 9):

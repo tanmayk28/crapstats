@@ -66,7 +66,7 @@ class Bet(object):
         self.comeOdds[player.point][1] = player.use_money(amount)
 
     def establish_come_odds(self, number, player):
-        amount = player.get_odds(number, self.come)
+        amount = player.get_come_odds(number, self.come)
         self.comeOdds[number][0] = self.come
         self.come = 0
 
@@ -79,7 +79,7 @@ class Bet(object):
         self.dontComeOdds[player.point][1] = player.use_money(amount)
 
     def establish_dont_come_odds(self, number, player):
-        amount = player.get_odds(number, self.dontCome)
+        amount = player.get_dont_come_odds(number, self.dontCome)
         self.dontComeOdds[number][0] = self.dontCome
         self.dontCome = 0
 
@@ -93,6 +93,7 @@ class Bet(object):
         else:
             if number == player.point:
                 status = 'POINT'
+                player.points_made += 1
                 player.point = None
 
         payout = self.payout_come_bet(number)
@@ -108,8 +109,9 @@ class Bet(object):
 
     def assess_seven_out(self, player):
         status = 'SEVEN_OUT'
-        self.passLine = 0
+        player.seven_outs += 1
         player.point = None
+        self.passLine = 0
 
         loss = self.clear_come_bets()
         loss += self.clear_place_bets()
@@ -133,6 +135,8 @@ class Bet(object):
     def assess_naturals(self, dice, player):
         payout = loss = 0
         status = 'NATURALS'
+        player.come_out_naturals += 1
+
         if self.passLine > 0:
             payout += self.passLine * 2
             self.passLine = 0
@@ -168,6 +172,7 @@ class Bet(object):
             loss += self.passLine
             self.passLine = 0
             status = 'CRAPS'
+            player.come_out_craps += 1
 
         if self.dontPassLine > 0:
             if number == 12:
@@ -176,6 +181,7 @@ class Bet(object):
                 payout += self.dontPassLine * 2
             self.dontPassLine = 0
             status = 'CRAPS'
+            player.come_out_craps += 1
 
         if number == 12:
             payout += self.dontCome

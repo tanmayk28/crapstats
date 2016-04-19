@@ -15,7 +15,7 @@ class DontComePlayer(Player):
         if self.point is None:
             bet.make_dont_pass_bet(self, amount)
         elif bet.dontComeOdds[self.point][1] == 0:
-            bet.establish_dont_pass_odds(self, self.get_odds(self.point, amount))
+            bet.establish_dont_pass_odds(self, self.get_dont_come_odds(self.point, amount))
             if bet.get_total_dont_come_bets() < self.max_points:
                 bet.make_dont_come_bet(self, amount)
         else:
@@ -31,5 +31,6 @@ class DontComePlayer(Player):
         return wager
 
     @staticmethod
-    def get_odds(number, amount):
-        return 6 * amount
+    def get_dont_come_odds(number, amount):
+        if number in (4, 5, 6, 8, 9, 10):
+            return 6 * amount

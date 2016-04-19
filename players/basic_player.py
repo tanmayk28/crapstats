@@ -30,6 +30,6 @@ class BasicPlayer(Player):
         return wager
 
     @staticmethod
-    def get_odds(number, amount):
+    def get_come_odds(number, amount):
         if number in (4, 5, 6, 8, 9, 10):
             return 2 * amount

@@ -46,7 +46,7 @@ class Table(object):
         for player in self.players:
             print player.__doc__
             player.tabulate()
-            self.log(player)
+            # self.log(player)
 
     def evaluate_roll(self, player):
         if player.point is None:
@@ -73,9 +73,6 @@ class Table(object):
         return delta
 
     def log(self, player):
-        print 'POINTS WON: {}\t\tSEVEN OUTS: {}'.format(self.points_made, self.seven_outs)
-        print 'NATURALS: {}\t\tCRAPS: {}'.format(self.come_out_naturals, self.come_out_craps)
-        print 'LONGEST ROLL: {}\tAVG ROLL: {}'.format(self.longest_roll, self.rolls / float(self.shooters))
         line_plot(player.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
