@@ -65,7 +65,6 @@ def test_place_bets():
 def test_across_place_bets():
     players = [Player(BANKROLL)]
     player = players[0]
-    table = Table(MINIMUM, players, MAX_ROLLS, None)
     bet = player.bet
 
     bet.make_across_place_bet(player, MINIMUM)

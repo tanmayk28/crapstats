@@ -17,5 +17,5 @@ if __name__ == '__main__':
     players.append(ComePlayer(bankroll))
     players.append(DontComePlayer(bankroll))
 
-    table = Table(minimum, players, max_rolls, None)
+    table = Table(minimum, players, max_rolls, rolls)
     table.simulate()
