@@ -1,12 +1,15 @@
+from collections import defaultdict
+
 CRAPS = (2, 3, 12)
 BOXES = (4, 5, 6, 8, 9, 10)
 NATURALS = (7, 11)
 SEVEN = 7
 YOLEVEN = 11
+BOXCARS = 12
+FIELD = (2, 3, 4, 9, 10, 11, 12)
 
 ODDS = {
-    'pass': (1, 1),
-    'come': (1, 1),
+    'even': (1, 1),
     'place': {
         6: (7, 6), 8: (7, 6),
         5: (7, 5), 9: (7, 5),
@@ -16,9 +19,12 @@ ODDS = {
         6: (6, 5), 8: (6, 5),
         5: (3, 2), 9: (3, 2),
         4: (2, 1), 10: (2, 1)
+    },
+    'field': {
+        2: (2, 1), 12: (3, 1)
     }
 }
-
+ODDS['field'] = defaultdict(lambda: ODDS['even'], ODDS['field'])
 
 # TODO Props, Hardways, DontCome, Lays, Field
 
@@ -58,6 +64,9 @@ class Bet(object):
 
     def make_dont_come_bet(self, player, amount):
         self.dontCome += player.use_money(amount)
+
+    def make_field_bet(self, player, amount):
+        self.field += player.use_money(amount)
 
     def establish_pass_odds(self, player, amount):
         self.comeOdds[player.point][0] = self.passLine
@@ -99,6 +108,11 @@ class Bet(object):
         payout += self.payout_place_bet(number)
         loss = self.clear_dont_come_bet(number)
 
+        if number in FIELD:
+            payout += self.payout_field_bet(dice)
+        else:
+            loss += self.clear_field_bet()
+
         player.add_money(payout)
 
         self.establish_come_odds(number, player)
@@ -114,6 +128,7 @@ class Bet(object):
         loss = self.clear_come_bets()
         loss += self.clear_place_bets()
         loss += self.clear_dont_come_line()
+        loss += self.clear_field_bet()
         payout = self.payout_dont_come_bets()
         payout += self.payout_lay_bet()
         payout += self.payout_come_line()
@@ -121,8 +136,9 @@ class Bet(object):
         player.add_money(payout)
         return payout, loss, status
 
-    def assess_yoleven(self, player):
+    def assess_yoleven(self, dice, player):
         payout = self.payout_come_line()
+        payout += self.payout_field_bet(dice)
         loss = self.clear_dont_come_line()
 
         player.add_money(payout)
@@ -140,6 +156,8 @@ class Bet(object):
             p, l = self.assess_come_out_seven()
             payout += p
             loss += l
+        elif dice.total == YOLEVEN:
+            payout += self.payout_field_bet(dice)
 
         player.add_money(payout)
         return payout, loss, status
@@ -148,7 +166,7 @@ class Bet(object):
         payout = loss = 0
         status = None
 
-        if self.passLine > 0 or self.dontPassLine > 0:
+        if player.point is None:
             status = 'CRAPS'
             player.come_out_craps += 1
 
@@ -156,6 +174,7 @@ class Bet(object):
         loss += self.clear_come_line()
         payout += self.payout_dont_pass_line(dice)
         payout += self.payout_dont_come_line(dice)
+        payout += self.payout_field_bet(dice)
 
         player.add_money(payout)
         return payout, loss, status
@@ -163,6 +182,7 @@ class Bet(object):
     def assess_come_out_seven(self):
         payout = loss = 0
 
+        loss += self.clear_field_bet()
         loss += sum([v[0] for k, v in self.comeOdds.iteritems()])
         payout += sum([v[1] for k, v in self.comeOdds.iteritems()])
         payout += self.payout_dont_come_bets()
@@ -174,7 +194,7 @@ class Bet(object):
     def payout_come_bet(self, number):
         bet = self.comeOdds[number][0]
         odds = self.comeOdds[number][1]
-        payout = bet + self.odds_calculation(bet, ODDS['come'])
+        payout = bet + self.odds_calculation(bet, ODDS['even'])
         payout += odds + self.odds_calculation(odds, ODDS['odds'][number])
         self.comeOdds[number][0] = self.comeOdds[number][1] = 0
         return payout
@@ -182,12 +202,15 @@ class Bet(object):
     def payout_place_bet(self, number):
         return self.odds_calculation(self.place[number], ODDS['place'][number])
 
+    def payout_field_bet(self, dice):
+        return self.odds_calculation(self.field, ODDS['field'][dice.total])
+
     def payout_dont_come_bets(self):
         payout = 0
         for number in BOXES:
             bet = self.dontComeOdds[number][0]
             odds = self.dontComeOdds[number][1]
-            payout += bet + self.odds_calculation(bet, ODDS['come'])
+            payout += bet + self.odds_calculation(bet, ODDS['even'])
             payout += odds + self.odds_calculation(odds, tuple(reversed(ODDS['odds'][number])))
             self.dontComeOdds[number][0] = self.dontComeOdds[number][1] = 0
         return payout
@@ -199,29 +222,29 @@ class Bet(object):
         return payout
 
     def payout_pass_line(self):
-        payout = self.passLine + self.odds_calculation(self.passLine, ODDS['pass'])
+        payout = self.passLine + self.odds_calculation(self.passLine, ODDS['even'])
         self.passLine = 0
         return payout
 
     def payout_come_line(self):
-        payout = self.come + self.odds_calculation(self.come, ODDS['come'])
+        payout = self.come + self.odds_calculation(self.come, ODDS['even'])
         self.come = 0
         return payout
 
     def payout_dont_pass_line(self, dice):
-        if dice.total == 12:
+        if dice.total == BOXCARS:
             payout = self.dontPassLine
         else:
-            payout = self.dontPassLine + self.odds_calculation(self.dontPassLine, ODDS['pass'])
+            payout = self.dontPassLine + self.odds_calculation(self.dontPassLine, ODDS['even'])
 
         self.dontPassLine = 0
         return payout
 
     def payout_dont_come_line(self, dice):
-        if dice.total == 12:
+        if dice.total == BOXCARS:
             payout = self.dontCome
         else:
-            payout = self.dontCome + self.odds_calculation(self.dontCome, ODDS['come'])
+            payout = self.dontCome + self.odds_calculation(self.dontCome, ODDS['even'])
 
         self.dontCome = 0
         return payout
@@ -261,6 +284,11 @@ class Bet(object):
         self.dontCome = 0
         return loss
 
+    def clear_field_bet(self):
+        loss = self.field
+        self.field = 0
+        return loss
+
     def get_wager(self):
         wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome
         wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values())
@@ -273,6 +301,9 @@ class Bet(object):
 
     def get_total_dont_come_bets(self):
         return len([k for k, v in self.dontComeOdds.iteritems() if sum(v)])
+
+    def get_field_bet(self):
+        return self.field
 
     @staticmethod
     def odds_calculation(amount, odds):

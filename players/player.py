@@ -47,9 +47,14 @@ class Player(object):
         self.history[table.rolls] = log
         self.longest_roll = max(self.longest_roll, table.dice.current_roll)
 
+    def collect_wager(self):
+        self.bankroll += self.bet.get_wager()
+        self.log_bankroll()
+
     def tabulate(self):
         headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Point', 'Won', 'Lost']
         print tabulate(self.history.values(), headers)
+        print 'Wager on table: {}'.format(self.bet.get_wager())
         print '\nBANKROLL: {} --> {}\n'.format(self.bankroll_history[0], self.bankroll_history[-1])
         print 'MAX BANKROLL: {}\tMIN BANKROLL: {}'.format(self.max_bank, self.min_bank)
         print 'POINTS WON: {}\t\tSEVEN OUTS: {}'.format(self.points_made, self.seven_outs)

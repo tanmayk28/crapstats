@@ -26,8 +26,8 @@ class DontComePlayer(Player):
     def get_wager(bet):
         wager = bet.get_wager()
         # come = {k: sum(v) for k, v in bet.comeOdds.iteritems() if v[0]}
-        come = 'DC' + str([k for k, v in bet.dontComeOdds.iteritems() if v[0]])
-        wager = " ".join((str(wager), str(come)))
+        dontCome = 'DC' + str([k for k, v in bet.dontComeOdds.iteritems() if v[0]])
+        wager = " ".join((str(wager), str(dontCome)))
         return wager
 
     @staticmethod

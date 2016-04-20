@@ -44,6 +44,7 @@ class Table(object):
             self.assess_post_roll()
 
         for player in self.players:
+            player.collect_wager()
             print player.__doc__
             player.tabulate()
             # self.log(player)
@@ -62,7 +63,7 @@ class Table(object):
             if self.dice.total == SEVEN:
                 delta = player.bet.assess_seven_out(player)
             elif self.dice.total == YOLEVEN:
-                delta = player.bet.assess_yoleven(player)
+                delta = player.bet.assess_yoleven(self.dice, player)
             elif self.dice.total in CRAPS:
                 delta = player.bet.assess_craps(self.dice, player)
             elif self.dice.total in BOXES:
