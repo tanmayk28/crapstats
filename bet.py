@@ -22,6 +22,11 @@ ODDS = {
     },
     'field': {
         2: (2, 1), 12: (3, 1)
+    },
+    'hop': {
+        2: (30, 1), 12: (30, 1),
+        3: (15, 1), 11: (15, 1),
+        7: (4, 1)
     }
 }
 ODDS['field'] = defaultdict(lambda: ODDS['even'], ODDS['field'])
@@ -40,6 +45,117 @@ class Bet(object):
         self.comeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
         self.dontComeOdds = {4: [0, 0], 5: [0, 0], 6: [0, 0], 8: [0, 0], 9: [0, 0], 10: [0, 0]}
         self.hardways = {4: 0, 6: 0, 8: 0, 10: 0}
+        self.hop = {2: 0, 3: 0, 7: 0, 11: 0, 12: 0}
+
+    def assess_box(self, dice, player):
+        status = None
+        number = dice.total
+        if player.point is None:
+            player.point = number
+        elif number == player.point:
+            status = 'POINT'
+            player.points_made += 1
+            player.point = None
+
+        payout = self.payout_come_bet(number)
+        payout += self.payout_place_bet(number)
+        loss = self.clear_dont_come_bet(number)
+        if number in self.hop.keys():
+            payout += self.payout_hop_bet(number)
+        loss += self.clear_hop_bets()
+
+        if number in FIELD:
+            payout += self.payout_field_bet(dice)
+        else:
+            loss += self.clear_field_bet()
+
+        player.add_money(payout)
+
+        self.establish_come_odds(number, player)
+        self.establish_dont_come_odds(number, player)
+
+        return payout, loss, status
+
+    def assess_seven_out(self, player):
+        status = 'SEVEN_OUT'
+        player.seven_outs += 1
+        player.point = None
+
+        loss = self.clear_come_bets()
+        loss += self.clear_place_bets()
+        loss += self.clear_dont_come_line()
+        loss += self.clear_field_bet()
+        payout = self.payout_dont_come_bets()
+        payout += self.payout_lay_bet()
+        payout += self.payout_come_line()
+        payout += self.payout_hop_bet(SEVEN)
+        loss += self.clear_hop_bets()
+
+        player.add_money(payout)
+        return payout, loss, status
+
+    def assess_yoleven(self, dice, player):
+        payout = self.payout_come_line()
+        payout += self.payout_field_bet(dice)
+        loss = self.clear_dont_come_line()
+        payout += self.payout_hop_bet(YOLEVEN)
+        loss += self.clear_hop_bets()
+
+        player.add_money(payout)
+        return payout, loss, None
+
+    def assess_naturals(self, dice, player):
+        number = dice.total
+        payout = loss = 0
+        status = 'NATURALS'
+        player.come_out_naturals += 1
+
+        payout += self.payout_pass_line()
+        loss += self.clear_dont_pass_line()
+        payout += self.payout_hop_bet(number)
+        loss += self.clear_hop_bets()
+
+        if number == SEVEN:
+            p, l = self.assess_come_out_seven()
+            payout += p
+            loss += l
+        elif number == YOLEVEN:
+            payout += self.payout_field_bet(dice)
+
+        player.add_money(payout)
+        return payout, loss, status
+
+    def assess_craps(self, dice, player):
+        number = dice.total
+        payout = loss = 0
+        status = None
+
+        if player.point is None:
+            status = 'CRAPS'
+            player.come_out_craps += 1
+
+        loss += self.clear_pass_line()
+        loss += self.clear_come_line()
+        payout += self.payout_dont_pass_line(dice)
+        payout += self.payout_dont_come_line(dice)
+        payout += self.payout_field_bet(dice)
+        payout += self.payout_hop_bet(number)
+        loss += self.clear_hop_bets()
+
+        player.add_money(payout)
+        return payout, loss, status
+
+    def assess_come_out_seven(self):
+        payout = loss = 0
+
+        loss += self.clear_field_bet()
+        loss += sum([v[0] for k, v in self.comeOdds.iteritems()])
+        payout += sum([v[1] for k, v in self.comeOdds.iteritems()])
+        payout += self.payout_dont_come_bets()
+
+        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
+
+        return payout, loss
 
     def make_pass_bet(self, player, amount):
         self.passLine += player.use_money(amount)
@@ -47,8 +163,8 @@ class Bet(object):
     def make_come_bet(self, player, amount):
         self.come += player.use_money(amount)
 
-    def make_place_bet(self, player, number, amount):
-        if player.point == number:
+    def make_place_bet(self, player, number, amount, placepoint=False):
+        if player.point == number and not placepoint:
             return
         amount = self.find_next_multiple(number, amount)
         if self.place[number] != 0:
@@ -67,6 +183,9 @@ class Bet(object):
 
     def make_field_bet(self, player, amount):
         self.field += player.use_money(amount)
+
+    def make_hop_bet(self, player, number, amount):
+        self.hop[number] += player.use_money(amount)
 
     def establish_pass_odds(self, player, amount):
         self.comeOdds[player.point][0] = self.passLine
@@ -93,103 +212,6 @@ class Bet(object):
         self.dontCome = 0
 
         self.dontComeOdds[number][1] = player.use_money(amount)
-
-    def assess_box(self, dice, player):
-        status = None
-        number = dice.total
-        if player.point is None:
-            player.point = number
-        elif number == player.point:
-            status = 'POINT'
-            player.points_made += 1
-            player.point = None
-
-        payout = self.payout_come_bet(number)
-        payout += self.payout_place_bet(number)
-        loss = self.clear_dont_come_bet(number)
-
-        if number in FIELD:
-            payout += self.payout_field_bet(dice)
-        else:
-            loss += self.clear_field_bet()
-
-        player.add_money(payout)
-
-        self.establish_come_odds(number, player)
-        self.establish_dont_come_odds(number, player)
-
-        return payout, loss, status
-
-    def assess_seven_out(self, player):
-        status = 'SEVEN_OUT'
-        player.seven_outs += 1
-        player.point = None
-
-        loss = self.clear_come_bets()
-        loss += self.clear_place_bets()
-        loss += self.clear_dont_come_line()
-        loss += self.clear_field_bet()
-        payout = self.payout_dont_come_bets()
-        payout += self.payout_lay_bet()
-        payout += self.payout_come_line()
-
-        player.add_money(payout)
-        return payout, loss, status
-
-    def assess_yoleven(self, dice, player):
-        payout = self.payout_come_line()
-        payout += self.payout_field_bet(dice)
-        loss = self.clear_dont_come_line()
-
-        player.add_money(payout)
-        return payout, loss, None
-
-    def assess_naturals(self, dice, player):
-        payout = loss = 0
-        status = 'NATURALS'
-        player.come_out_naturals += 1
-
-        payout += self.payout_pass_line()
-        loss += self.clear_dont_pass_line()
-
-        if dice.total == SEVEN:
-            p, l = self.assess_come_out_seven()
-            payout += p
-            loss += l
-        elif dice.total == YOLEVEN:
-            payout += self.payout_field_bet(dice)
-
-        player.add_money(payout)
-        return payout, loss, status
-
-    def assess_craps(self, dice, player):
-        payout = loss = 0
-        status = None
-
-        if player.point is None:
-            status = 'CRAPS'
-            player.come_out_craps += 1
-
-        loss += self.clear_pass_line()
-        loss += self.clear_come_line()
-        payout += self.payout_dont_pass_line(dice)
-        payout += self.payout_dont_come_line(dice)
-        payout += self.payout_field_bet(dice)
-
-        player.add_money(payout)
-        return payout, loss, status
-
-    def assess_come_out_seven(self):
-        payout = loss = 0
-
-        loss += self.clear_field_bet()
-        loss += sum([v[0] for k, v in self.comeOdds.iteritems()])
-        payout += sum([v[1] for k, v in self.comeOdds.iteritems()])
-        payout += self.payout_dont_come_bets()
-
-        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
-
-        return payout, loss
 
     def payout_come_bet(self, number):
         bet = self.comeOdds[number][0]
@@ -249,6 +271,11 @@ class Bet(object):
         self.dontCome = 0
         return payout
 
+    def payout_hop_bet(self, number):
+        payout = self.hop[number] + self.odds_calculation(self.hop[number], ODDS['hop'][number])
+        self.hop[number] = 0
+        return payout
+
     def clear_come_bets(self):
         loss = sum([sum(v) for k, v in self.comeOdds.iteritems()])
         self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
@@ -289,9 +316,26 @@ class Bet(object):
         self.field = 0
         return loss
 
+    def clear_hop_bets(self):
+        loss = sum([v for k, v in self.hop.iteritems()])
+        self.hop = {k: 0 for k, v in self.hop.iteritems()}
+        return loss
+
+    def return_place_bets(self, player):
+        profit = sum([v for k, v in self.place.iteritems()])
+        self.place = {k: 0 for k, v in self.place.iteritems()}
+        player.add_money(profit)
+        return
+
+    def return_field_bet(self, player):
+        profit = self.field
+        self.field = 0
+        player.add_money(profit)
+        return
+
     def get_wager(self):
         wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome
-        wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values())
+        wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values()) + sum(self.hop.values())
         wager += sum([sum(v) for k, v in self.comeOdds.iteritems()])
         wager += sum([sum(v) for k, v in self.dontComeOdds.iteritems()])
         return wager
@@ -304,6 +348,9 @@ class Bet(object):
 
     def get_field_bet(self):
         return self.field
+
+    def get_total_place_bets(self):
+        return len([k for k, v in self.place.iteritems() if v])
 
     @staticmethod
     def odds_calculation(amount, odds):

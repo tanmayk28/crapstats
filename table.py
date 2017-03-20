@@ -76,7 +76,7 @@ class Table(object):
     def log(self, player):
         line_plot(player.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
-        # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
+        bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 
     def assess_post_roll(self):
         if self.table_status and len(set(self.table_status)) != 1:
