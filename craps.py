@@ -14,11 +14,11 @@ if __name__ == '__main__':
     rolls = [5, 10, 10, 10, 3, 11, 9, 5, 9, 10, 8, 8, 7]
     players = list()
     # players.append(BasicPlayer(bankroll))
-    # players.append(ComePlayer(bankroll))
-    # players.append(DontComePlayer(bankroll))
+    players.append(ComePlayer(bankroll))
+    players.append(DontComePlayer(bankroll))
     # players.append(FieldPlayer(bankroll))
     players.append(IronCrossPlayer(bankroll))
-    players.append(AntiIronCrossPlayer(bankroll))
+    # players.append(AntiIronCrossPlayer(bankroll))
     # players.append(DCPlacePlayer(bankroll))
  
     table = Table(minimum, players, max_rolls, None)

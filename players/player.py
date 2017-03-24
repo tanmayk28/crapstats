@@ -61,7 +61,7 @@ class Player(object):
         print 'NATURALS: {}\t\tCRAPS: {}'.format(self.come_out_naturals, self.come_out_craps)
         print 'LONGEST ROLL: {}\tAVG ROLL: {}'.format(self.longest_roll, self.get_avg_roll())
 
-        line_plot(self.bankroll_history)
+        # line_plot(self.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 

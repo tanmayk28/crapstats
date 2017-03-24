@@ -1,37 +1,91 @@
-from matplotlib import pyplot
+from matplotlib import pyplot as plt
+from matplotlib import style
 from numpy import *
+from collections import Counter
 import bisect
+import pandas as pd
+
+# style.use('ggplot')
 
 
-def line_plot(x, y=None):
-    if y is None:
-        y = x
-        x = xrange(1, x.__len__() + 1, 1)
-    pyplot.plot(x, y)
-    pyplot.draw()
-    pyplot.pause(1)
+def line_plot(players):
+    for player in players:
+        y = player.bankroll_history
+        x = xrange(1, player.bankroll_history.__len__() + 1, 1)
+
+        plt.plot(x, y, label=player.__class__.__name__)
+
+    plt.legend()
+    plt.title('Bankroll over time')
+    plt.ylabel('Bankroll')
+    plt.xlabel('Dice Rolls')
+    plt.draw()
+    plt.pause(1)
     raw_input()
-    pyplot.close()
+    plt.close()
+
+
+def hist_plot(rolls):
+    counter = Counter(rolls)
+    plt.bar(counter.keys(), counter.values())
+    plt.draw()
+    plt.pause(1)
+    raw_input()
+    plt.close()
+
+
+def plot_stats(players, rolls):
+    plt.figure(figsize=(16, 6))
+
+    bankroll = plt.subplot2grid((2, 4), (0, 0), rowspan=2, colspan=3)
+    dicerolls = plt.subplot2grid((2, 4), (0, 3), rowspan=1, colspan=1)
+
+    for player in players:
+        y = player.bankroll_history
+        x = xrange(1, player.bankroll_history.__len__() + 1, 1)
+
+        bankroll.plot(x, y, label=player.__class__.__name__)
+
+    bankroll.legend()
+    bankroll.set_title('Bankroll over time')
+    bankroll.set_ylabel('Bankroll')
+    bankroll.set_xlabel('Dice Rolls')
+
+    counter = Counter(rolls)
+    dicerolls.bar(counter.keys(), counter.values())
+    roll_labels = ['a', 'b', 'v', 'c', '6', '7', '8', '9', '10', '11', '12']
+    dicerolls.set_xticklabels(roll_labels, minor=True)
+    dicerolls.set_title('Dicerolls')
+    dicerolls.set_ylabel('# rolls')
+    dicerolls.set_xlabel('Number')
+
+    plt.tight_layout()
+    plt.draw()
+    plt.pause(1)
+    raw_input()
+    plt.close()
 
 
 def scatter_plot(x, y):
-    pyplot.plot(x, y, 'b.')
-    pyplot.xlim(min(x) - 1, max(x) + 1)
-    pyplot.ylim(min(y) - 1, max(y) + 1)
-    pyplot.show()
+    plt.plot(x, y, 'b.')
+    plt.xlim(min(x) - 1, max(x) + 1)
+    plt.ylim(min(y) - 1, max(y) + 1)
+    plt.draw()
+    plt.pause(1)
+    raw_input()
+    plt.close()
 
 
 def bar_plot(labels, data):
     pos = arange(len(data))
-    pyplot.xticks(pos + 0.4, labels)
-    pyplot.bar(pos, data)
-    pyplot.figure(figsize=(7, 7))
-    pyplot.pie(data, labels=labels, autopct='%1.2f%%')
-    pyplot.draw()
-    pyplot.pause(1)
+    plt.xticks(pos + 0.4, labels)
+    plt.bar(pos, data)
+    plt.figure(figsize=(7, 7))
+    plt.pie(data, labels=labels, autopct='%1.2f%%')
+    plt.draw()
+    plt.pause(1)
     raw_input()
-    pyplot.close()
-    # pyplot.show()
+    plt.close()
 
 
 def histogram_plot(data, bins=None, nbins=5):
@@ -70,9 +124,9 @@ def bar_chart(x, y, numbins=5):
 
 
 def pie_chart(labels, data):
-    pyplot.figure(figsize=(7, 7))
-    pyplot.pie(data, labels=labels, autopct='%1.2f%%')
-    pyplot.draw()
-    pyplot.pause(1)
+    plt.figure(figsize=(7, 7))
+    plt.pie(data, labels=labels, autopct='%1.2f%%')
+    plt.draw()
+    plt.pause(1)
     raw_input()
-    pyplot.close()
+    plt.close()
