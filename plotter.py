@@ -1,4 +1,5 @@
 from matplotlib import pyplot as plt
+from matplotlib.ticker import MultipleLocator, FormatStrFormatter
 from matplotlib import style
 from numpy import *
 from collections import Counter
@@ -34,31 +35,63 @@ def hist_plot(rolls):
     plt.close()
 
 
-def plot_stats(players, rolls):
+def plot_stats(players, dice):
+    rolls = dice.history[1:]
+    hardways = dice.hardway_history[1:]
     plt.figure(figsize=(16, 6))
 
     bankroll = plt.subplot2grid((2, 4), (0, 0), rowspan=2, colspan=3)
     dicerolls = plt.subplot2grid((2, 4), (0, 3), rowspan=1, colspan=1)
 
+    # Compute and plot bankroll line graph
     for player in players:
         y = player.bankroll_history
         x = xrange(1, player.bankroll_history.__len__() + 1, 1)
 
         bankroll.plot(x, y, label=player.__class__.__name__)
+        bankroll.text(x[-1], y[-1], '{}'.format(y[-1]),
+                      fontsize='small', fontweight='bold', fontstretch='condensed', fontstyle='italic')
 
+    # Compute and plot dicerolls bar graph
+    counter = Counter(rolls)
+    hardway_counter = Counter(hardways)
+    bars = dicerolls.bar(counter.keys(), counter.values())
+    hw_bars = dicerolls.bar(hardway_counter.keys(), hardway_counter.values(), color='#d62728')
+
+    # Bankroll line graph text formatting
     bankroll.legend()
-    bankroll.set_title('Bankroll over time')
+    bankroll.set_title('Bankroll history')
     bankroll.set_ylabel('Bankroll')
     bankroll.set_xlabel('Dice Rolls')
 
-    counter = Counter(rolls)
-    dicerolls.bar(counter.keys(), counter.values())
-    roll_labels = ['a', 'b', 'v', 'c', '6', '7', '8', '9', '10', '11', '12']
-    dicerolls.set_xticklabels(roll_labels, minor=True)
-    dicerolls.set_title('Dicerolls')
+    # Dicerolls bar graph text formatting
+    major_locator = MultipleLocator(1)
+    dicerolls.xaxis.set_major_locator(major_locator)
+    dicerolls.set_title('Roll counter')
     dicerolls.set_ylabel('# rolls')
-    dicerolls.set_xlabel('Number')
+    dicerolls.set_xlabel('Dice Number')
+    chart_bottom, chart_top = dicerolls.get_ylim()
+    chart_height = chart_top - chart_bottom
+    for bar in bars:
+        ht = bar.get_height()
+        wt = bar.get_width()
+        roll_percent = ht + (chart_height * -0.05)
+        roll_total = ht + (chart_height * 0.005)
+        dicerolls.text(bar.get_x() + wt / 2 + 0.06, roll_percent, '{0:.0f}%'.format(ht/len(rolls) * 100),
+                       ha='center', rotation='vertical', fontstyle='oblique', fontstretch='condensed')
+        dicerolls.text(bar.get_x() + wt / 2, roll_total, '{0:.0f}'.format(ht),
+                       ha='center', fontsize='x-small', fontweight='bold', fontstretch='condensed', fontstyle='italic')
+    for bar in hw_bars:
+        ht = bar.get_height()
+        wt = bar.get_width()
+        roll_percent = ht + (chart_height * -0.05)
+        roll_total = ht + (chart_height * 0.005)
+        dicerolls.text(bar.get_x() + wt / 2, roll_total, '{0:.0f}'.format(ht),
+                       ha='center', fontsize='x-small', fontweight='bold', fontstretch='condensed', fontstyle='italic')
+    dicerolls.text(3, chart_top + (chart_height * -0.1), 'Total rolls : {}'.format(len(rolls)),
+                   ha='center', fontsize='x-small', fontweight='bold', fontstretch='condensed', family='sans')
 
+    # Figure formatting and exit on input
     plt.tight_layout()
     plt.draw()
     plt.pause(1)

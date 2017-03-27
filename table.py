@@ -48,7 +48,7 @@ class Table(object):
             print player.__doc__
             player.tabulate()
 
-        plot_stats(self.players, self.dice.history[1:])
+        plot_stats(self.players, self.dice)
 
     def evaluate_roll(self, player):
         if player.point is None:

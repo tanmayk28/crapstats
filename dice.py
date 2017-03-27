@@ -15,6 +15,7 @@ class Dice(object):
         self.hardway = None
         self.frequency = {2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0}
         self.history = [None]
+        self.hardway_history = [None]
         self.current_roll = 0
 
     def roll(self):
@@ -43,5 +44,7 @@ class Dice(object):
 
     def add_to_history(self):
         self.history.append(self.total)
+        if self.hardway:
+            self.hardway_history.append(self.total)
         self.frequency[self.total] += 1
         self.current_roll += 1
