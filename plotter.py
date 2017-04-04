@@ -38,7 +38,7 @@ def hist_plot(rolls):
 def plot_stats(players, dice):
     rolls = dice.history[1:]
     hardways = dice.hardway_history[1:]
-    plt.figure(figsize=(16, 6))
+    plt.figure(figsize=(16, 6), tight_layout=True).canvas.set_window_title('CrapStats')
 
     bankroll = plt.subplot2grid((2, 4), (0, 0), rowspan=2, colspan=3)
     dicerolls = plt.subplot2grid((2, 4), (0, 3), rowspan=1, colspan=1)
@@ -49,7 +49,8 @@ def plot_stats(players, dice):
         x = xrange(1, player.bankroll_history.__len__() + 1, 1)
 
         bankroll.plot(x, y, label=player.__class__.__name__)
-        bankroll.text(x[-1], y[-1], '{}'.format(y[-1]),
+        # Display the final bankroll in the line graph
+        bankroll.text(x[-1], y[-1], '{0:.0f}'.format(y[-1]),
                       fontsize='small', fontweight='bold', fontstretch='condensed', fontstyle='italic')
 
     # Compute and plot dicerolls bar graph
@@ -92,7 +93,7 @@ def plot_stats(players, dice):
                    ha='center', fontsize='x-small', fontweight='bold', fontstretch='condensed', family='sans')
 
     # Figure formatting and exit on input
-    plt.tight_layout()
+    # plt.tight_layout()
     plt.draw()
     plt.pause(1)
     raw_input()
