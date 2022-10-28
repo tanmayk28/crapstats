@@ -12,7 +12,7 @@ import pandas as pd
 def line_plot(players):
     for player in players:
         y = player.bankroll_history
-        x = xrange(1, player.bankroll_history.__len__() + 1, 1)
+        x = range(1, player.bankroll_history.__len__() + 1, 1)
 
         plt.plot(x, y, label=player.__class__.__name__)
 
@@ -22,7 +22,7 @@ def line_plot(players):
     plt.xlabel('Dice Rolls')
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()
 
 
@@ -31,7 +31,7 @@ def hist_plot(rolls):
     plt.bar(counter.keys(), counter.values())
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()
 
 
@@ -46,7 +46,7 @@ def plot_stats(players, dice):
     # Compute and plot bankroll line graph
     for player in players:
         y = player.bankroll_history
-        x = xrange(1, player.bankroll_history.__len__() + 1, 1)
+        x = range(1, player.bankroll_history.__len__() + 1, 1)
 
         bankroll.plot(x, y, label=player.__class__.__name__)
         # Display the final bankroll in the line graph
@@ -96,7 +96,7 @@ def plot_stats(players, dice):
     # plt.tight_layout()
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()
 
 
@@ -106,7 +106,7 @@ def scatter_plot(x, y):
     plt.ylim(min(y) - 1, max(y) + 1)
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()
 
 
@@ -118,7 +118,7 @@ def bar_plot(labels, data):
     plt.pie(data, labels=labels, autopct='%1.2f%%')
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()
 
 
@@ -162,5 +162,5 @@ def pie_chart(labels, data):
     plt.pie(data, labels=labels, autopct='%1.2f%%')
     plt.draw()
     plt.pause(1)
-    raw_input()
+    input()
     plt.close()

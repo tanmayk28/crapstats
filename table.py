@@ -45,7 +45,7 @@ class Table(object):
 
         for player in self.players:
             player.collect_wager()
-            print player.__doc__
+            print(player.__doc__)
             player.tabulate()
 
         plot_stats(self.players, self.dice)

@@ -3,9 +3,9 @@ from players import *
 
 __author__ = 'T'
 
-bankroll = 10000
+bankroll = 600
 minimum = 5
-max_rolls = 5000
+max_rolls = 1000
 
 if __name__ == '__main__':
     # rolls = [8, 8, 8, 7, 5, 5, 5, 11, 6, 10, 10, 6, 10, 7, 4, 3, 6, 8, 4, 3, 6, 8, 4, 5, 5, 5, 10, 8, 6,
@@ -15,9 +15,9 @@ if __name__ == '__main__':
     players = list()
     # players.append(BasicPlayer(bankroll))
     players.append(ComePlayer(bankroll))
-    players.append(DontComePlayer(bankroll))
+    # players.append(DontComePlayer(bankroll))
     # players.append(FieldPlayer(bankroll))
-    players.append(IronCrossPlayer(bankroll))
+    # players.append(IronCrossPlayer(bankroll))
     # players.append(AntiIronCrossPlayer(bankroll))
     # players.append(DCPlacePlayer(bankroll))
  

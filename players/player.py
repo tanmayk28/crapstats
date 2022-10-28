@@ -53,20 +53,21 @@ class Player(object):
 
     def tabulate(self):
         headers = ['#', 'Shooter', 'BankRoll', 'Wager', 'Dice', 'Point', 'Won', 'Lost']
-        print tabulate(self.history.values(), headers)
-        print 'Wager on table: {}'.format(self.bet.get_wager())
-        print '\nBANKROLL: {} --> {}\n'.format(self.bankroll_history[0], self.bankroll_history[-1])
-        print 'MAX BANKROLL: {}\tMIN BANKROLL: {}'.format(self.max_bank, self.min_bank)
-        print 'POINTS WON: {}\t\tSEVEN OUTS: {}'.format(self.points_made, self.seven_outs)
-        print 'NATURALS: {}\t\tCRAPS: {}'.format(self.come_out_naturals, self.come_out_craps)
-        print 'LONGEST ROLL: {}\tAVG ROLL: {}'.format(self.longest_roll, self.get_avg_roll())
+        print(tabulate(self.history.values(), headers))
+        print('Wager on table: {}'.format(self.bet.get_wager()))
+        print('\nBANKROLL: {} --> {}\n'.format(self.bankroll_history[0], self.bankroll_history[-1]))
+        print('MAX BANKROLL: {}\tMIN BANKROLL: {}'.format(self.max_bank, self.min_bank))
+        print('POINTS WON: {}\t\tSEVEN OUTS: {}'.format(self.points_made, self.seven_outs))
+        print('NATURALS: {}\t\tCRAPS: {}'.format(self.come_out_naturals, self.come_out_craps))
+        print('LONGEST ROLL: {}\tAVG ROLL: {}'.format(self.longest_roll, self.get_avg_roll()))
 
         # line_plot(self.bankroll_history)
         # pie_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values())
         # bar_chart([2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], self.dice.history.values(), 11)
 
     def get_avg_roll(self):
-        last_log = self.history[self.history.keys()[-1]]
+        # last_log = self.history[self.history.keys()[-1]]
+        last_log = self.history[next(reversed(self.history))]
         return last_log.rollNumber / float(last_log.shooter)
 
     @staticmethod

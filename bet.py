@@ -31,6 +31,7 @@ ODDS = {
 }
 ODDS['field'] = defaultdict(lambda: ODDS['even'], ODDS['field'])
 
+
 # TODO Props, Hardways, DontCome, Lays, Field
 
 class Bet(object):
@@ -149,11 +150,11 @@ class Bet(object):
         payout = loss = 0
 
         loss += self.clear_field_bet()
-        loss += sum([v[0] for k, v in self.comeOdds.iteritems()])
-        payout += sum([v[1] for k, v in self.comeOdds.iteritems()])
+        loss += sum([v[0] for k, v in self.comeOdds.items()])
+        payout += sum([v[1] for k, v in self.comeOdds.items()])
         payout += self.payout_dont_come_bets()
 
-        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
+        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.items()}
 
         return payout, loss
 
@@ -277,13 +278,13 @@ class Bet(object):
         return payout
 
     def clear_come_bets(self):
-        loss = sum([sum(v) for k, v in self.comeOdds.iteritems()])
-        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.iteritems()}
+        loss = sum([sum(v) for k, v in self.comeOdds.items()])
+        self.comeOdds = {k: [0, 0] for k, v in self.comeOdds.items()}
         return loss
 
     def clear_place_bets(self):
-        loss = sum([v for k, v in self.place.iteritems()])
-        self.place = {k: 0 for k, v in self.place.iteritems()}
+        loss = sum([v for k, v in self.place.items()])
+        self.place = {k: 0 for k, v in self.place.items()}
         return loss
 
     def clear_pass_line(self):
@@ -317,13 +318,13 @@ class Bet(object):
         return loss
 
     def clear_hop_bets(self):
-        loss = sum([v for k, v in self.hop.iteritems()])
-        self.hop = {k: 0 for k, v in self.hop.iteritems()}
+        loss = sum([v for k, v in self.hop.items()])
+        self.hop = {k: 0 for k, v in self.hop.items()}
         return loss
 
     def return_place_bets(self, player):
-        profit = sum([v for k, v in self.place.iteritems()])
-        self.place = {k: 0 for k, v in self.place.iteritems()}
+        profit = sum([v for k, v in self.place.items()])
+        self.place = {k: 0 for k, v in self.place.items()}
         player.add_money(profit)
         return
 
@@ -335,22 +336,23 @@ class Bet(object):
 
     def get_wager(self):
         wager = self.passLine + self.dontPassLine + self.field + self.come + self.dontCome
-        wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values()) + sum(self.hop.values())
-        wager += sum([sum(v) for k, v in self.comeOdds.iteritems()])
-        wager += sum([sum(v) for k, v in self.dontComeOdds.iteritems()])
+        wager += sum(self.place.values()) + sum(self.lay.values()) + sum(self.hardways.values()) + sum(
+            self.hop.values())
+        wager += sum([sum(v) for k, v in self.comeOdds.items()])
+        wager += sum([sum(v) for k, v in self.dontComeOdds.items()])
         return wager
 
     def get_total_come_bets(self):
-        return len([k for k, v in self.comeOdds.iteritems() if sum(v)])
+        return len([k for k, v in self.comeOdds.items() if sum(v)])
 
     def get_total_dont_come_bets(self):
-        return len([k for k, v in self.dontComeOdds.iteritems() if sum(v)])
+        return len([k for k, v in self.dontComeOdds.items() if sum(v)])
 
     def get_field_bet(self):
         return self.field
 
     def get_total_place_bets(self):
-        return len([k for k, v in self.place.iteritems() if v])
+        return len([k for k, v in self.place.items() if v])
 
     @staticmethod
     def odds_calculation(amount, odds):

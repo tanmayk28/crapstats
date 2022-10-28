@@ -27,6 +27,6 @@ class IronCrossPlayer(Player):
     def get_wager(bet):
         wager = bet.get_wager()
         field = 'F [{}]'.format(bet.field)
-        place = 'P' + str([k for k, v in bet.place.iteritems() if v])
+        place = 'P' + str([k for k, v in bet.place.items() if v])
         wager = " ".join((str(wager), str(place), str(field)))
         return wager
